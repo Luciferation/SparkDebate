@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, watch } from 'vue';
+import { reactive, watch, ref, onMounted, onUnmounted } from 'vue';
 import ExploreAI from './Sub/ExploreAI.vue';
 import CreateAI from './Sub/CreateAI.vue'
 import CheckAllSession from './Sub/CheckAllSession.vue'
@@ -48,9 +48,35 @@ const chooseSession = (index) => {
   state.mode = '对话'
 }
 
+
+
+// 调整滚动条位置, 使得居中
+const scrollableArea = ref(null);
+let observer;
+const adjustScroll = () => {
+  const scrollable = scrollableArea.value.$el.querySelector('.el-scrollbar__wrap');
+  if (scrollable) {
+    scrollable.scrollLeft = (scrollable.scrollWidth - scrollable.clientWidth) / 2;
+  }
+};
+onMounted(() => {
+  observer = new ResizeObserver(adjustScroll);
+  observer.observe(scrollableArea.value.$el.querySelector('.el-scrollbar__wrap'));
+});
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+});
+
 // 监听模式变化
 watch(() => state.mode, (val) => {
   console.log(val);
+  if(val === '探索AI助手') {
+    setTimeout(() => {
+      adjustScroll()
+    }, 100)
+  }
 })
 </script>
 
@@ -91,20 +117,12 @@ watch(() => state.mode, (val) => {
           查看所有聊天记录
         </div>
       </div>
-      <div class="main">
-        <div v-if="state.mode === '探索AI助手'">
-          <ExploreAI></ExploreAI>
-        </div>
-        <div v-else-if="state.mode === '创造AI助手'">
-          <CreateAI></CreateAI>
-        </div>
-        <div v-else-if="state.mode === '查看所有聊天记录'">
-          <CheckAllSession></CheckAllSession>
-        </div>
-        <div v-else-if="state.mode == '对话'">
-          <Session></Session>
-        </div>
-      </div>
+      <el-scrollbar ref="scrollableArea" class="main">
+        <ExploreAI v-if="state.mode === '探索AI助手'"></ExploreAI>
+        <CreateAI v-else-if="state.mode === '创造AI助手'"></CreateAI>
+        <CheckAllSession v-else-if="state.mode === '查看所有聊天记录'"></CheckAllSession>
+        <Session v-else-if="state.mode === '对话'"></Session>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -119,12 +137,17 @@ $hoverGray: #cccccc;
 // 布局
 $headerHeight: 80px;
 $asideWidth: 306px;
+$halfWidth: 1000px;
 .header {
   background-color: $deepPurple;
   height: $headerHeight;
+
   display: flex;
   align-items: center;
   padding-left: $asideWidth;
+  @media (max-width: $halfWidth) {
+   padding-left: calc($asideWidth / 9);   
+  }
   position: relative;
   .tab {
     color: $navFontColor;
@@ -137,6 +160,7 @@ $asideWidth: 306px;
       // 变蓝
       color: $hoverGray;
     }
+
   }
   .avatar {
     position: absolute;
@@ -247,6 +271,7 @@ $gap: 5px;
 .main {
   background-color: #F3F5F8;
   flex: 1;
+  overflow: hidden;
 }
 
 </style>

@@ -1,11 +1,52 @@
 <script setup>
 import { reactive, watch } from 'vue';
 import ExploreAI from './Sub/ExploreAI.vue';
-import CreateAI from './Sub/CreateAI.vue';
+import CreateAI from './Sub/CreateAI.vue'
+import CheckAllSession from './Sub/CheckAllSession.vue'
+import Session from './Sub/Session.vue'
 const state = reactive({
-  // 探索AI助手 |创造AI助手
-  mode: '探索AI助手'
+  // 探索AI助手, 创造AI助手, 查看所有聊天记录, 对话
+  mode: '探索AI助手',
+
+  index_session_chosen: 0,
+  sessionList: [{
+    session_id: 123,
+    avatar_url: '',
+    ai_name: 'TBRLIS',
+    brief: '西电湖人你是真的火了'
+  }, {
+    session_id: 124,
+    avatar_url: '',
+    ai_name: 'TBRLIS',
+    brief: '西电湖人你是真的火了'
+  }]
 })
+
+const modeList = [
+  {
+    name: '探索AI助手',
+  },
+  {
+    name: '创造AI助手',
+  }
+]
+
+const navList = [
+  {
+    name: '首页',
+  },
+  {
+    name: 'AI辩论训练',
+  },
+  {
+    name: 'AI辩论广场',
+  }
+]
+
+const chooseSession = (index) => {
+  state.index_session_chosen = index
+  state.mode = '对话'
+}
 
 // 监听模式变化
 watch(() => state.mode, (val) => {
@@ -16,47 +57,39 @@ watch(() => state.mode, (val) => {
 <template>
   <div class="main-box">
     <div class="header">
-      <div class="tab">
-        首页
-      </div>
+      <div class="tab" v-for="item in navList" :key="item.name">{{ item.name }}</div>
+      <el-avatar class="avatar" :size="53" :src="1">
+          <img
+            src="/avatarDefault.png"
+          />
+      </el-avatar>
     </div>
     <!-- aside和main -->
     <div class="mid">
       <div class="aside">
+        <!-- 模式选择 -->
         <div class="modeChangeBox">
-          <el-radio-group v-model="state.mode" size="large">
-            <el-radio-button label="探索AI助手">探索AI助手</el-radio-button>
-            <el-radio-button label="创造AI助手">创造AI助手</el-radio-button>
-          </el-radio-group>
+          <div class="button" v-for="mode in modeList" :key="mode" @click="state.mode = mode.name">{{ mode.name }}</div>
         </div>
         <!-- 可选会话列表 -->
         <el-scrollbar class="list">
-          <el-menu default-active="1" @open="handleOpen" @close="handleClose">
-            <el-menu-item index="1">1</el-menu-item>
-            <el-menu-item index="2">2</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-            <el-menu-item index="3">3</el-menu-item>
-          </el-menu>
+          <div @click="chooseSession(i)" :class="['session', 'chosen'?state.index_session_chosen == i:'']" v-for="(session, i) in state.sessionList" :key="session.session_id">
+            <el-avatar :size="53" :src="session.avatar_url">
+              <img
+                src="/avatarDefault.png"
+              />
+            </el-avatar>
+            <div class="info">
+              <div class="name">{{ session.ai_name }}</div>
+              <div class="brief">{{ session.brief }}</div>
+            </div>
+            <el-icon class="arrow" v-if="state.index_session_chosen == i" color="#ffffff" size="45"><ArrowRightBold/></el-icon>
+          </div>
         </el-scrollbar>
+        <!-- 查看所有聊天记录按钮 -->
+        <div class="checkAllSession" @click="state.mode = '查看所有聊天记录'">
+          查看所有聊天记录
+        </div>
       </div>
       <div class="main">
         <div v-if="state.mode === '探索AI助手'">
@@ -65,6 +98,12 @@ watch(() => state.mode, (val) => {
         <div v-else-if="state.mode === '创造AI助手'">
           <CreateAI></CreateAI>
         </div>
+        <div v-else-if="state.mode === '查看所有聊天记录'">
+          <CheckAllSession></CheckAllSession>
+        </div>
+        <div v-else-if="state.mode == '对话'">
+          <Session></Session>
+        </div>
       </div>
     </div>
   </div>
@@ -72,50 +111,142 @@ watch(() => state.mode, (val) => {
   
 
 <style lang="scss" scoped>
+// 颜色
+$deepPurple: #7565C6;
+$lightPurple: #8775DD;
+$navFontColor: #ffffff;
+$hoverGray: #cccccc;
+// 布局
+$headerHeight: 80px;
+$asideWidth: 306px;
 .header {
-  background-color: lightpink;
-  height: 70px;
+  background-color: $deepPurple;
+  height: $headerHeight;
   display: flex;
   align-items: center;
+  padding-left: $asideWidth;
+  position: relative;
   .tab {
-    margin-top: 4px;
-    margin-left: 20px;
-    background-color: lightcoral;
-    width: 70px;
-    height: 50px;
-    line-height: 50px;
-    text-align: center;
+    color: $navFontColor;
+    margin-right: 80px;
+    font-size: 28px;
+    white-space: nowrap;
+
+    &:hover {
+      cursor: pointer;
+      // 变蓝
+      color: $hoverGray;
+    }
+  }
+  .avatar {
+    position: absolute;
+    right: 25px;
   }
 }
 
 .mid {
   display: flex;
-  height: calc(100vh - 70px);
-  .aside {
-    width: 280px;
-  }
-  .main {
-    flex: 1;
-  }
+  height: calc(100vh - $headerHeight);
 }
-.aside {
-  background-color: lightblue;
 
+$asideItemWidth: 130px;
+$asideBorderRadius: 20px;
+$gap: 5px;
+.aside {
+  background-color: $deepPurple;
+  width: $asideWidth;
+  height: 100%;
+  padding: 0 19px 0px 15px;
   .modeChangeBox {
-    background-color: lightseagreen;  
-    height: 100px;
-    width: 100%;
+    height: 148px;
+    border-radius: $asideBorderRadius $asideBorderRadius 0 0;
+    background-color: $lightPurple;
+    padding: 0 14px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    .button {
+      width: $asideItemWidth;
+      height: 81px;
+      border-radius: 20px;
+      font-size: 18px;
+      
+      font-weight: bold;
+      background-color: $deepPurple;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      &:hover {
+        cursor: pointer;
+        color: $hoverGray;
+      }
+    }
+
   }
   .list {
-    height: calc(100vh - 170px);
+    height: 532px;
+    background-color: $lightPurple;
+    margin-bottom: $gap;
+    .session {
+      &:first-child {
+        border-top: $gap $deepPurple solid;
+      }
+      background-color: $lightPurple;
+      // margin-top: 5px;
+      border-bottom: $gap $deepPurple solid;
+      height: 145px;
+      display: flex;
+      align-items: center;
+      padding-left: 15px;
+      .info {
+        margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+        
+        .name {
+          font-size: 28px;
+          font-family: SourceHanSansSC-regular;
+          color: #363636 100%;
+          font-weight: 700;
+        }
+        .brief {
+          font-size: 14px;
+          color: #363636 100%;
+          font-family: SourceHanSansSC-medium;
+        }
+      }
+      .arrow {
+        margin-left: auto;
+        margin-right: 5px;
+      }
+      &:hover {
+        cursor: pointer;
+      }
+    }
   }
+
+  .checkAllSession {
+      background-color: $lightPurple;
+      height: 81px;
+      border-radius: 0 0 20px 20px;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      white-space: nowrap;
+      &:hover {
+        cursor: pointer;
+        color: $hoverGray;
+      }
+    }
 }
 
 .main {
-  background-color: lightgreen;
+  background-color: #F3F5F8;
+  flex: 1;
 }
 
 </style>

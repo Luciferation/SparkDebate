@@ -5,7 +5,7 @@
 <template>
     <div>
         CreateAI
-    </div>
+        </div>
 </template>
 
 <style lang="scss" scoped>

@@ -5,6 +5,7 @@ import CreateAI from './Sub/CreateAI.vue'
 import CheckAllSession from './Sub/CheckAllSession.vue'
 import Session from './Sub/Session.vue'
 import DebateTrain from './Sub/DebateTrain.vue'
+import DebateMatch from './AIMatch/DebateMatch.vue'
 const state = reactive({
   // 探索AI助手, 创造AI助手, 查看所有聊天记录, 对话
   mode: '探索AI助手',
@@ -41,6 +42,9 @@ const navList = [
   },
   {
     name: 'AI辩论广场',
+  },
+  {
+    name:"AI辩论赛事"
   }
 ]
 
@@ -52,6 +56,9 @@ const chooseSession = (index) => {
 const clickNav = (name) => {
   if(name === 'AI辩论训练') {
     state.mode = 'AI辩论训练'
+  }
+  else if(name === 'AI辩论赛事') {
+    state.mode = 'AI辩论赛事'
   }
 }
 
@@ -95,8 +102,9 @@ watch(() => state.mode, (val) => {
           />
       </el-avatar>
     </div>
+     <DebateMatch v-if="state.mode === 'AI辩论赛事'" style="z-index:99"></DebateMatch>
     <!-- aside和main -->
-    <div class="mid">
+    <div class="mid" v-else>
       <div class="aside">
         <!-- 模式选择 -->
         <div class="modeChangeBox">
@@ -131,6 +139,7 @@ watch(() => state.mode, (val) => {
       </el-scrollbar>
     </div>
   </div>
+ 
 </template>
   
 

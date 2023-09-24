@@ -4,6 +4,7 @@ import ExploreAI from './Sub/ExploreAI.vue';
 import CreateAI from './Sub/CreateAI.vue'
 import CheckAllSession from './Sub/CheckAllSession.vue'
 import Session from './Sub/Session.vue'
+import DebateTrain from './Sub/DebateTrain.vue'
 const state = reactive({
   // 探索AI助手, 创造AI助手, 查看所有聊天记录, 对话
   mode: '探索AI助手',
@@ -48,7 +49,11 @@ const chooseSession = (index) => {
   state.mode = '对话'
 }
 
-
+const clickNav = (name) => {
+  if(name === 'AI辩论训练') {
+    state.mode = 'AI辩论训练'
+  }
+}
 
 // 调整滚动条位置, 使得居中
 const scrollableArea = ref(null);
@@ -83,7 +88,7 @@ watch(() => state.mode, (val) => {
 <template>
   <div class="main-box">
     <div class="header">
-      <div class="tab" v-for="item in navList" :key="item.name">{{ item.name }}</div>
+      <div @click="clickNav(item.name)" class="tab" v-for="item in navList" :key="item.name">{{ item.name }}</div>
       <el-avatar class="avatar" :size="53" :src="1">
           <img
             src="/avatarDefault.png"
@@ -122,6 +127,7 @@ watch(() => state.mode, (val) => {
         <CreateAI v-else-if="state.mode === '创造AI助手'"></CreateAI>
         <CheckAllSession v-else-if="state.mode === '查看所有聊天记录'"></CheckAllSession>
         <Session v-else-if="state.mode === '对话'"></Session>
+        <DebateTrain v-else-if="state.mode === 'AI辩论训练'"></DebateTrain>
       </el-scrollbar>
     </div>
   </div>

@@ -8,6 +8,7 @@
         frameborder="0"
         width="1240"
         height="1000"
+        allow="microphone"
     ></iframe>
 </template>
 
